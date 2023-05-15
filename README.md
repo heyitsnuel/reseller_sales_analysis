@@ -1,7 +1,7 @@
 ##  README
 
 This repository contains a technical analytics assignment that I got from one of my job applications as Data Analyst.
-This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data quality profiling**, and **exploratory analysis**.
+This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data quality analysis**, and **exploratory analysis**.
 
 ## Database Connection
 
@@ -29,6 +29,15 @@ SELECT * FROM `civic-genius-328315.remote_assignment.DimSalesTerritory` LIMIT 10
 
 ### Data Quality Analysis
 
+Below are the findings regarding data quality, categorized by table name.
 
+#### DimCustomer
+This table contains a reference for the customers.
+
+Concerns:
+- Columns such as `Title`, `Middle Name`, `Suffix`, and `AddressLine2` has missing values denoted with "NULL" strings. Though these  columns are not critical, missing values should be left empty instead, to avoid any misprocessing by users and other applications. While a human may understand the intention, machines may mistake it for a value, leading to inaccurate results.
+- The date format in the `BirthDate` column is not standardized. It is supposed to be in dd/mm/yyyy format, but some of the month values have leading zeros (e.g. 06 for June instead of 6). This can lead to errors when loaded into a table or when analyzed. I loaded this column as String for now, but would need to be corrected if I intend to use it.
+- The `Phone` column also appears to be in a non-standard format. Some values include country code and area code, while others do not.
+- The `DateFirstPurchase` column's format, while standardized to be in dd/mm/yy format, it has leading zeroes which could be a problem in certain databases. Such format is not automatically recognized by BigQuery, we would need to eliminate the leading zeroes or find a way to specify a correct date format later on.
 
 ## SQL Questions
