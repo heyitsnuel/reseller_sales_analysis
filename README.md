@@ -1,7 +1,7 @@
 ##  README
 
 This repository contains a technical analytics assignment that I got from one of my job applications as Data Analyst.
-This demonstrates the use of *SQL* in *Google BigQuery* for *ETL*, *data quality profiling*, and *exploratory analysis*.
+This demonstrates the use of **SQ*L* in **Google BigQuery** for **ETL**, **data quality profiling**, and **exploratory analysis**.
 
 ## Database Connection
 
