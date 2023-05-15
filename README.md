@@ -7,9 +7,9 @@ This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data 
 
 The datasets are loaded into BigQuery with these details:
 - Project id: `civic-genius-328315`
-- Dataset name: `remote_assignment`
+- Dataset id: `remote_assignment`
 
-The datasets consist of 4 dimension tables and 1 fact table:
+The datasets comprise of 4 dimension tables and 1 fact table:
 - `DimCustomer`
 - `DimProduct`
 - `DimSalesTerritory`
