@@ -311,19 +311,32 @@ LEFT JOIN `civic-genius-328315.remote_assignment.DimSalesTerritory` t
 LEFT JOIN `civic-genius-328315.remote_assignment.DimProduct` p
   USING (ProductKey)
 WHERE EXTRACT(year FROM OrderDate) = 2012
-QUALIFY ROW_NUMBER() OVER (PARTITION BY FORMAT_DATE('%m-%Y', OrderDate), SalesTerritoryCountry, ProductName ORDER BY SalesAmount) = 1
+QUALIFY ROW_NUMBER() OVER (PARTITION BY FORMAT_DATE('%m-%Y', OrderDate) ORDER BY SalesAmount) = 1
 ORDER BY 1, 2, 3
 ```
 
 #### Explanation
 - First, we limit the fact table to only process the data of sales in 2012.
 - Then we perform two left joins: one with `DimSalesTerritory` using `SalesTerritoryKey` to get `SalesTerritoryCountry`, and another with `DimProduct` using `ProductKey` to get `ProductName`.
-- To get the lowest transaction, we do the `ROW_NUMBER()` function partitioned by Month, `SalesTerritoryCountry`, and `ProductName`, sorted by `SalesAmount` in ascending order.
+- To get the lowest transaction, we do the `ROW_NUMBER()` function partitioned by Month, ordered by `SalesAmount` in ascending order.
 
 ### Question 5: What is 2022 monthly basis Annual Recurring Revenue (ARR) of products named EOR Monthly and EOR Yearly?
 
 ```
-
+SELECT
+  FORMAT_DATE('%m-%Y', invoice_date) AS InvoiceMonth,
+  SUM(amount_usd) AS MRR_usd,
+  SUM(amount_usd) * 12 AS Monthly_ARR_usd
+FROM `civic-genius-328315.remote_assignment.DimInvoices`
+WHERE EXTRACT(year FROM invoice_date) = 2022
+  AND is_recurring = 'Yes'
+  AND product_type IN ('EOR Monthly', 'EOR Yearly')
+GROUP BY 1
+ORDER BY 1
 ```
 
 #### Explanation
+- First, we filter the table to only include invoices that were issued in 2022. The table, in fact, only contains data for 2022, but we do this still just in case.
+- Then we add the second filter, `is_recurring = 'Yes'`, since we want to calculate only recurring revenue.
+- Next we add a filter to only include 'EOR Monthly' and 'EOR Yearly' products.
+- Finally, we simply sum the `amount_usd` grouped by the invoice month for MRR, and multiply it by 12 to get ARR.
