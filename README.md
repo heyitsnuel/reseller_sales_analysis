@@ -34,7 +34,7 @@ This section contains the findings regarding data quality for each table.
 #### DimCustomer
 This table contains information about the customers.
 
-**Uniqueness**
+##### Uniqueness
 - The `CustomerKey`, `CustomerAlternateKey` and `EmailAddress` columns are unique. This shows that most of the key indentifiers are not duplicated.
 - There are duplications in the `Phone` column. The uniqueness score is 49% (only 49% of the values in this column are unique). While phone numbers can be recycled, this score is too severe. It is unlikely that phone numbers are recycled hundreds of times already. For example, the number `1 (11) 500 555-0118` is duplicated 205 times.
 - There seems to be duplications in `AddressLine1`, the uniqueness score is 69.3%. There are cases where customers have the same address. For example, being part of the same family, renting different rooms in the same building, or simply have moved out to a different address. However, since the uniqueness score seems quite low, this is worth a further investigation.
@@ -62,10 +62,10 @@ having count(*) > 1
 order by 2 desc
 ```
 
-**Completeness**
+##### Completeness
 - Columns such as `Title`, `Middle Name`, `Suffix`, and `AddressLine2` have missing values denoted with "NULL" strings. Though these  columns are not critical, missing values should be left empty instead, to avoid any misprocessing by users and other applications. While a human may understand the intention, machines may mistake it for a value, leading to inaccurate results.
 
-**Consistency**
+##### Consistency
 - The date format in the `BirthDate` column is not standardized. It is supposed to be in `dd/mm/yyyy` format, but some of the month values have leading zeros (e.g. 06 for June instead of 6). This can lead to errors when loaded into a table or when analyzed. I loaded this column as String for now, but would need to be corrected if I intend to use it.
 - The `Phone` column also appears to be in a non-standard format. Some values include country code and area code, while others do not.
 - The `DateFirstPurchase` column's format, while standardized to be in `dd/mm/yy` format, it has leading zeroes which could be a problem in certain databases. Such format is not automatically recognized by BigQuery, we would need to eliminate the leading zeroes or find a way to specify a correct date format later on.
@@ -73,7 +73,7 @@ order by 2 desc
 #### DimProduct
 This table contains information about the products that the company sells.
 
-**Patterns, Relationships, & Outliers**
+##### Patterns, Relationships, & Outliers
 - There are apparent relationships between `WeightUnitMeasureCode` and `Weight`, as well as between `SizeUnitMeasureCode` and `Size`, where the former is a measurement unit for the latter.
 - For non-null values in `StandardCost`, I identified the outliers using IQR, and found 39 outliers (~11%). This is the same with `ListPrice`, and `DealerPrice`.
 
@@ -94,7 +94,7 @@ from `civic-genius-328315.remote_assignment.DimProduct`, iqr
 where DealerPrice <> 'NULL'
 ```
 
-**Uniqueness**
+##### Uniqueness
 - The `ProductKey` column, as the primary identifier is unique.
 - There are some duplications in `ProductAlternateKey` (Uniqueness score 85.7%).
 
@@ -107,7 +107,7 @@ select
 from `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
-**Completeness**
+##### Completeness
 - Columns such as `WeightUnitMeasureCode`, `SizeUnitMeasureCode`, `StandardCost`, `ListPrice`, `Size`, `Weight`, `ProductLine`, `DealerPrice`, `Class`, `Style`, `ModelName`, `Status`, and `EndDate` have missing values denoted with "NULL" strings. When the information is missing on these columns, leaving it empty is better to avoid misleading interpretations.
 - The completeness of `WeightUnitMeasureCode` and `SizeUnitMeasureCode` are 43.1% and 38.1% respectively. This could be a fatal issue when trying to get reports about product weight or size.
 - The completeness of `Status` is 58.9%, obtained by counting both blanks and "NULL" values.
@@ -126,13 +126,13 @@ from `civic-genius-328315.remote_assignment.DimProduct`
 
 #### DimSalesTerritory
 
-**Completeness**
+##### Completeness
 - There seems to be only one concern, that there is missing information for one particular row corresponding to `SalesTerritoryKey` 11.
 
 #### DimInvoices
 This table contains information about the invoices. 
 
-**Patterns, Relationships, & Outliers**
+##### Patterns, Relationships, & Outliers
 - The `discount` column defines the `discount_amount_usd`, which makes the calculation for `amount_usd`. When there is no discount, `discount_amount_usd` equals to `amount_usd`. When there is discount, `discount_amount_usd` = `amount_usd` - `discount`.
 - There are 60 outliers out of 500 values in `amount_usd`. These are the values greater than the upper bound (`mean + 1.5 * std dev`) of 2,620.
 
@@ -145,10 +145,10 @@ select
 from `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
-**Uniqueness**
+##### Uniqueness
 - The `invoice_id` column, as the primary identifier is unique.
 
-**Completeness**
+##### Completeness
 - The `product_type` column has a few missing values, though its completeness score is quite high (92.6%), this could be improved.
 - 92.8% of the `discount` column is blank. Assuming this means no discount, it is better to impute this with 0.
 
