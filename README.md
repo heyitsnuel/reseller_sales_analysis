@@ -117,6 +117,7 @@ Query to evaluate completeness
 ```
 select
   count(*) as row_count,
+  1 - count(case when status = 'NULL' or status is null then 1 end) / count(*) as status_compl_score,
   count(case when startdate IN ('00:00.0', 'NULL') or startdate is null then 1 end) / count(*) as startdate_missing_score,
   count(case when enddate IN ('00:00.0', 'NULL') or enddate is null then 1 end) / count(*) as enddate_missing_score
 from `civic-genius-328315.remote_assignment.DimProduct`
@@ -158,6 +159,24 @@ select
   count(case when product_type is not null then 1 end) as product_type_compl_score,
   count(case when discount is null then 1 end) / count(*) as discount_missing_score
 from `civic-genius-328315.remote_assignment.DimInvoices`
+```
+
+### FactResellerSales
+This transactional table stores detailed sales information.
+
+#### Patterns, Relationships, & Outliers
+- Since `SalesOrderNumber` is repeated, we can combine it with `SalesOrderLineNumber` to use as the primary identifier
+- `OrderQuantity` * `UnitPrice` = `ExtendedAmount`
+- `UnitPriceDiscount` * `ExtendedAmount` = `DiscountAmount`
+- `ExtendedAmount` - `DiscountAmount` = `SalesAmount`
+- `OrderQuantity` * `ProductStandardCost` = `TotalProductCost`
+
+Query to validate the unique identifier
+```
+select
+  count(*) as row_count,
+  count(distinct concat(salesordernumber, '-', salesorderlinenumber))  as unique_id_count
+from `civic-genius-328315.remote_assignment.FactResellerSales`
 ```
 
 ## SQL Questions
