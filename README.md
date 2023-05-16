@@ -162,14 +162,15 @@ from `civic-genius-328315.remote_assignment.DimInvoices`
 ```
 
 ### FactResellerSales
-This transactional table stores detailed sales information.
+This fact table stores detailed information about sales transactions.
 
 #### Patterns, Relationships, & Outliers
-- Since `SalesOrderNumber` is repeated, we can combine it with `SalesOrderLineNumber` to use as the primary identifier
+- Since `SalesOrderNumber` is repeated, we can combine it with `SalesOrderLineNumber` to make it as the primary identifier
 - `OrderQuantity` * `UnitPrice` = `ExtendedAmount`
 - `UnitPriceDiscount` * `ExtendedAmount` = `DiscountAmount`
 - `ExtendedAmount` - `DiscountAmount` = `SalesAmount`
 - `OrderQuantity` * `ProductStandardCost` = `TotalProductCost`
+- There are a few outliers in some of the fields, such as 7,370 rows (12%) in `ProductStandardCost`, 3,671 (6%) in `OrderQuantity`, 3,952 (6.5%) in `SalesAmount`
 
 Query to validate the unique identifier
 ```
@@ -177,6 +178,21 @@ select
   count(*) as row_count,
   count(distinct concat(salesordernumber, '-', salesorderlinenumber))  as unique_id_count
 from `civic-genius-328315.remote_assignment.FactResellerSales`
+```
+
+Query to find outliers
+```
+with iqr as (
+  select
+    avg(ProductStandardCost) - 1.5 * stddev(ProductStandardCost) as lower_bound,
+    avg(ProductStandardCost) + 1.5 * stddev(ProductStandardCost) as upper_bound
+  from `civic-genius-328315.remote_assignment.FactResellerSales`
+)
+
+select
+  count(*),
+  count(case when ProductStandardCost not between lower_bound and upper_bound then 1 end) as outlier_count
+from `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
 ```
 
 ## SQL Questions
