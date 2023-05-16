@@ -3,6 +3,11 @@
 This repository contains a technical analytics assignment that I got from one of my job applications as Data Analyst.
 This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data quality analysis**, and **exploratory analysis**.
 
+## Dataset
+
+The datasets are from this [spreadsheet](https://docs.google.com/spreadsheets/d/1aTaIHrw3rlyug-fJFYJjgWRYuaIJqDN6K_KNf0iHg1Q).  
+You may refer to it when the tables have expired.
+
 ## Database Connection
 
 The datasets are loaded into BigQuery with these details:
