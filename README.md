@@ -94,6 +94,7 @@ where DealerPrice <> 'NULL'
 
 #### Uniqueness
 - The `ProductKey` column, as the primary identifier is unique.
+- `ProductName` is duplicated, as one `ProductName` can have more than one `ProductKey`, usually having different `StandardCost` and can be validated using `StartDate` and `EndDate`.
 - There are some duplications in `ProductAlternateKey` (Uniqueness score 85.7%).
 
 Query to evaluate uniqueness
@@ -122,6 +123,19 @@ select
   count(case when enddate IN ('00:00.0', 'NULL') or enddate is null then 1 end) / count(*) as enddate_missing_score
 from `civic-genius-328315.remote_assignment.DimProduct`
 ```
+
+#### Consistency
+- `StartDate` in most cases should be earlier than `EndDate`, however ~55.9% of the rows have `EndDate` earlier than `StartDate`. This is excluding `EndDate` = "NULL" and `EndDate` is blank, since it is assumed that the corresponding product is still valid or active.
+
+Query to evaluate consistency
+```
+select
+  count(*) as row_count,
+  count(case when StartDate > EndDate then 1 end) as invalid_count
+from `civic-genius-328315.remote_assignment.DimProduct`
+where EndDate <> "NULL" and EndDate is not null
+```
+
 
 ### DimSalesTerritory
 
@@ -196,3 +210,6 @@ from `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
 ```
 
 ## SQL Questions
+
+### Question 1: What is the highest transaction of each month in 2012 for the product Sport-100 Helmet, Red?
+
