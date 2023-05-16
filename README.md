@@ -214,7 +214,7 @@ FROM `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
 ### Question 1: What is the highest transaction of each month in 2012 for the product Sport-100 Helmet, Red?
 
 ```
-WITH prod AS (
+WITH prod_filter AS (
   SELECT ProductKey
   FROM `civic-genius-328315.remote_assignment.DimProduct`
   WHERE ProductName = 'Sport-100 Helmet, Red'
@@ -222,7 +222,7 @@ WITH prod AS (
 
 SELECT
   FORMAT_DATE('%m-%Y', OrderDate) AS Month,
-  SalesAmount,
+  ROUND(SalesAmount, 1) AS SalesAmount,
   DATE(OrderDate) AS OrderDate
 FROM `civic-genius-328315.remote_assignment.FactResellerSales`
 WHERE EXTRACT(year FROM OrderDate) = 2012
@@ -232,16 +232,67 @@ ORDER BY 1
 ```
 
 #### Explanation
-- In the `prod` CTE, we shortlist the ProductKey(s) in question.
+- In the `prod_filter` CTE, we shortlist the `ProductKey` in question.
 - Since the order of the filters matters in BigQuery, we first filter the fact table to only return sales from 2012.
 - Then we filter the ProductKey. This order of filters will optimize BigQuery to only process the intended subset of data instead of scanning the whole table.
-- To get the highest transaction, we rank it using the `ROW_NUMBER()` function, passing the Month as the partition and sorting the SalesAmount in descending order.
+- To get the highest transaction, we rank it using the `ROW_NUMBER()` function, passing the Month as the partition and sorting the `SalesAmount` in descending order.
 - Finally, we filter the highest transaction from the resulting rank using the `QUALIFY` clause.
 - To get the desired date format for the output, we use the `FORMAT_DATE()` function.
 
 ### Question 2: Find all the products and their total sales amount by month. Only consider products that had at least one sale in 2012.
 
 ```
+WITH prod_filter AS (
+  SELECT
+    ProductKey,
+    COUNT(*) AS TotalSales2012
+  FROM `civic-genius-328315.remote_assignment.FactResellerSales`
+  WHERE EXTRACT(year FROM OrderDate) = 2012
+  GROUP BY 1
+)
 
+SELECT
+  ProductName,
+  ROUND(SUM(SalesAmount), 1) AS SalesAmount,
+  FORMAT_DATE('%m-%Y', OrderDate) AS Month
+FROM (
+  SELECT ProductKey, ProductName FROM `civic-genius-328315.remote_assignment.DimProduct`
+  WHERE ProductKey IN (SELECT ProductKey FROM prod_filter WHERE TotalSales2012 >= 1)
+) p
+LEFT JOIN `civic-genius-328315.remote_assignment.FactResellerSales` s
+  USING (ProductKey)
+GROUP BY 1, 3 ORDER BY 1, 3
 ```
 
+#### Explanation
+- In the `prod_filter` CTE, we shortlist the `ProductKey` that have at least one sale in 2012.
+- Afterwards, we filter the `DimProduct` table to only include the `ProductKey` from `prod_filter` CTE. This way, we minimize the number of data being processed in the join operation.
+- Then we perform a left join with the fact table using `ProductKey` as the join key.
+- Finally, we sum the `SalesAmount` grouped by `ProductName` and Month, rounded to one decimal point.
+
+### Question 3: What are the age groups of customers categorised by marital status and gender?
+
+```
+WITH age_ref AS (
+  SELECT
+    CustomerKey,
+    DATE_DIFF(CURRENT_DATE, PARSE_DATE('%d/%m/%Y', BirthDate), DAY) / 365 AS AgeInYear
+  FROM `civic-genius-328315.remote_assignment.DimCustomer`
+)
+
+SELECT
+  MaritalStatus,
+  Gender,
+  COUNT(CASE WHEN AgeInYear < 35 THEN CustomerKey END) AS AgeBelow35,
+  COUNT(CASE WHEN AgeInYear BETWEEN 35 AND 50 THEN CustomerKey END) AS AgeBetween35and50,
+  COUNT(CASE WHEN AgeInYear > 35 THEN CustomerKey END) AS AgeAbove50
+FROM `civic-genius-328315.remote_assignment.DimCustomer` c
+JOIN age_ref a
+  USING (CustomerKey)
+GROUP BY 1, 2
+ORDER BY 1, 2
+```
+
+#### Explanation
+- The `age_ref` CTE aims to calculate customers' age by subtracting the number of days between current date and the `BirthDate`, and divide the result by 365 to get the year. Using the `DATEDIFF()` function this way will get us more accurate age, compared to only getting the year difference directly.
+- From here on, we can simply use the `COUNT()` function combined with `CASE` statements to categorize the age ranges.
