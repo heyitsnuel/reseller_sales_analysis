@@ -125,7 +125,7 @@ from `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
 #### Consistency
-- `StartDate` in most cases should be earlier than `EndDate`, however ~55.9% of the rows have `EndDate` earlier than `StartDate`. This is excluding `EndDate` = "NULL" and `EndDate` is blank, since it is assumed that the corresponding product is still valid or active.
+- `StartDate` in most cases should be earlier than `EndDate`, however ~55.9% of the rows have `EndDate` earlier than `StartDate`. This excludes `EndDate` = "NULL" and blanks, since it can be assumed that the corresponding product is still valid or active in such cases.
 
 Query to evaluate consistency
 ```
@@ -212,4 +212,31 @@ from `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
 ## SQL Questions
 
 ### Question 1: What is the highest transaction of each month in 2012 for the product Sport-100 Helmet, Red?
+
+```
+with prod as (
+  select ProductKey
+  from `civic-genius-328315.remote_assignment.DimProduct`
+  where ProductName = 'Sport-100 Helmet, Red'
+)
+
+select
+  format_date('%m-%Y', OrderDate) as Month,
+  SalesAmount,
+  date(OrderDate) as OrderDate
+from `civic-genius-328315.remote_assignment.FactResellerSales`
+where extract(year from OrderDate) = 2012
+  and ProductKey in (select ProductKey from prod)
+qualify row_number() over (partition by format_date('%m-%Y', OrderDate) order by SalesAmount desc) = 1
+order by 1
+```
+
+In the `prod` CTE, we shortlist the ProductKey(s) in question. Since the order of the filters matters in BigQuery, we first filter the fact table to only return sales from 2012. Then we filter the ProductKey. This order of filters will optimize BigQuery to only process the intended subset of data instead of scanning the whole table.  
+To get the highest transaction, we rank it using the `row_number()` function, passing the Month as the partition and sorting the SalesAmount in descending order. Finally, we filter the highest transaction from the resulting rank using the `qualify` clause.
+
+### Question 2: Find all the products and their total sales amount by month. Only consider products that had at least one sale in 2012.
+
+```
+
+```
 
