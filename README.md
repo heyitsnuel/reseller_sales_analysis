@@ -296,3 +296,34 @@ ORDER BY 1, 2
 #### Explanation
 - The `age_ref` CTE aims to calculate customers' age by subtracting the number of days between current date and the `BirthDate`, and divide the result by 365 to get the year. Using the `DATEDIFF()` function this way will get us more accurate age, compared to only getting the year difference directly.
 - From here on, we can simply use the `COUNT()` function combined with `CASE` statements to categorize the age ranges.
+
+### Question 4: What is the combination of product & country with the lowest amount of sales per month in 2012?
+
+```
+SELECT
+  FORMAT_DATE('%m-%Y', OrderDate) AS Month,
+  SalesTerritoryCountry,
+  ProductName,
+  ROUND(SalesAmount, 1) AS SalesAmount
+FROM `civic-genius-328315.remote_assignment.FactResellerSales` s
+LEFT JOIN `civic-genius-328315.remote_assignment.DimSalesTerritory` t
+  USING (SalesTerritoryKey)
+LEFT JOIN `civic-genius-328315.remote_assignment.DimProduct` p
+  USING (ProductKey)
+WHERE EXTRACT(year FROM OrderDate) = 2012
+QUALIFY ROW_NUMBER() OVER (PARTITION BY FORMAT_DATE('%m-%Y', OrderDate), SalesTerritoryCountry, ProductName ORDER BY SalesAmount) = 1
+ORDER BY 1, 2, 3
+```
+
+#### Explanation
+- First, we limit the fact table to only process the data of sales in 2012.
+- Then we perform two left joins: one with `DimSalesTerritory` using `SalesTerritoryKey` to get `SalesTerritoryCountry`, and another with `DimProduct` using `ProductKey` to get `ProductName`.
+- To get the lowest transaction, we do the `ROW_NUMBER()` function partitioned by Month, `SalesTerritoryCountry`, and `ProductName`, sorted by `SalesAmount` in ascending order.
+
+### Question 5: What is 2022 monthly basis Annual Recurring Revenue (ARR) of products named EOR Monthly and EOR Yearly?
+
+```
+
+```
+
+#### Explanation
