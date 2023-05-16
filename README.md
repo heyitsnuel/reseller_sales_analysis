@@ -47,7 +47,8 @@ Concerns:
 #### DimProduct
 This table contains information about the products that the company sells.
 
-The `ProductKey` column, as the primary identifier is unique.
+The `ProductKey` column, as the primary identifier is unique.  
+There are apparent relationships between `WeightUnitMeasureCode` and `Weight`, as well as between `SizeUnitMeasureCode` and `Size`, where the former is a measurement unit for the latter.
 
 Concerns:
 - Columns such as `WeightUnitMeasureCode`, `SizeUnitMeasureCode`, `StandardCost`, `ListPrice`, 'Size', `Weight`, `ProductLine`, `DealerPrice`, `Class`, `Style`, `ModelName`, `Status`, and `EndDate` have missing values denoted with "NULL" strings. When the information is missing on these columns, leaving it empty is better to avoid misleading interpretations.
@@ -56,8 +57,11 @@ Concerns:
 - 49.7% of the values in `StartDate` column is either `00:00.0` or "NULL", which poses as an incompleteness problem as well.
 - 58.9% of the values in `EndDate` column is "NULL". Combined with blanks and `00:00.0`, it's missing values accumulate to 90% of the whole table.
 - There are some duplications in `ProductAlternateKey` (Uniqueness score 85.7%).
+- For non-null values in `StandardCost`, I identified the outliers using IQR, and found 39 outliers (~11%). This is the same with `ListPrice`, and `DealerPrice`.
 
 #### DimSalesTerritory
+
+There seems to be only one concern, that there is missing information for one particular row corresponding to `SalesTerritoryKey` 11.
 
 #### DimInvoices
 
