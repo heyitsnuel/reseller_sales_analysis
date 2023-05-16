@@ -39,25 +39,25 @@ This table contains information about the customers.
 
 Query to evaluate uniqueness
 ```
-select
-  count(*) as row_count,
-  count(distinct customerkey) as unique_customer_key_count,
-  count(distinct customeralternatekey) as unique_customer_alt_key_count,
-  count(distinct emailaddress) as unique_email_count,
-  count(distinct phone) as unique_phone_count,
-  count(distinct addressline1) as unique_address1_count
-from `civic-genius-328315.remote_assignment.DimCustomer`
+SELECT
+  COUNT(*) AS row_count,
+  COUNT(DISTINCT customerkey) AS unique_customer_key_count,
+  COUNT(DISTINCT customeralternatekey) AS unique_customer_alt_key_count,
+  COUNT(DISTINCT emailaddress) AS unique_email_count,
+  COUNT(DISTINCT phone) AS unique_phone_count,
+  COUNT(DISTINCT addressline1) AS unique_address1_count
+FROM `civic-genius-328315.remote_assignment.DimCustomer`
 ```
 
 Query to evaluate `Phone` uniqueness specifically
 ```
-select
+SELECT
   phone,
-  count(*)
-from `civic-genius-328315.remote_assignment.DimCustomer`
-group by 1
-having count(*) > 1
-order by 2 desc
+  COUNT(*)
+FROM `civic-genius-328315.remote_assignment.DimCustomer`
+GROUP BY 1
+HAVING COUNT(*) > 1
+ORDER BY 2 DESC
 ```
 
 #### Completeness
@@ -77,19 +77,19 @@ This table contains information about the products that the company sells.
 
 Query to find outliers
 ```
-with iqr as (
-  select
-    avg(cast(DealerPrice as float64)) - 1.5 * stddev(cast(DealerPrice as float64)) as lower_bound,
-    avg(cast(DealerPrice as float64)) + 1.5 * stddev(cast(DealerPrice as float64)) as upper_bound
-  from `civic-genius-328315.remote_assignment.DimProduct`
-  where DealerPrice <> 'NULL'
+WITH iqr AS (
+  SELECT
+    AVG(CAST(DealerPrice AS FLOAT64)) - 1.5 * STDDEV(CAST(DealerPrice AS FLOAT64)) AS lower_bound,
+    AVG(CAST(DealerPrice AS FLOAT64)) + 1.5 * STDDEV(CAST(DealerPrice AS FLOAT64)) AS upper_bound
+  FROM `civic-genius-328315.remote_assignment.DimProduct`
+  WHERE DealerPrice <> 'NULL'
 )
 
-select
-  count(*),
-  count(case when cast(DealerPrice as float64) not between lower_bound and upper_bound then 1 end) as outlier_count
-from `civic-genius-328315.remote_assignment.DimProduct`, iqr
-where DealerPrice <> 'NULL'
+SELECT
+  COUNT(*),
+  COUNT(CASE WHEN CAST(DealerPrice AS FLOAT64) NOT BETWEEN lower_bound AND upper_bound THEN 1 END) AS outlier_count
+FROM `civic-genius-328315.remote_assignment.DimProduct`, iqr
+WHERE DealerPrice <> 'NULL'
 ```
 
 #### Uniqueness
@@ -99,11 +99,11 @@ where DealerPrice <> 'NULL'
 
 Query to evaluate uniqueness
 ```
-select
-  count(*) as row_count,
-  count(distinct productkey) as unique_product_key_count,
-  1 - count(distinct productalternatekey)/count(*) as product_alt_key_uniq_score
-from `civic-genius-328315.remote_assignment.DimProduct`
+SELECT
+  COUNT(*) AS row_count,
+  COUNT(DISTINCT productkey) AS unique_product_key_count,
+  1 - COUNT(DISTINCT productalternatekey) / COUNT(*) AS product_alt_key_uniq_score
+FROM `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
 #### Completeness
@@ -116,12 +116,12 @@ from `civic-genius-328315.remote_assignment.DimProduct`
 
 Query to evaluate completeness
 ```
-select
-  count(*) as row_count,
-  1 - count(case when status = 'NULL' or status is null then 1 end) / count(*) as status_compl_score,
-  count(case when startdate IN ('00:00.0', 'NULL') or startdate is null then 1 end) / count(*) as startdate_missing_score,
-  count(case when enddate IN ('00:00.0', 'NULL') or enddate is null then 1 end) / count(*) as enddate_missing_score
-from `civic-genius-328315.remote_assignment.DimProduct`
+SELECT
+  COUNT(*) AS row_count,
+  1 - COUNT(CASE WHEN status = 'NULL' OR status IS NULL THEN 1 END) / COUNT(*) AS status_compl_score,
+  COUNT(CASE WHEN startdate IN ('00:00.0', 'NULL') OR startdate IS NULL THEN 1 END) / COUNT(*) AS startdate_missing_score,
+  COUNT(CASE WHEN enddate IN ('00:00.0', 'NULL') OR enddate IS NULL THEN 1 END) / COUNT(*) AS enddate_missing_score
+FROM `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
 #### Consistency
@@ -129,11 +129,11 @@ from `civic-genius-328315.remote_assignment.DimProduct`
 
 Query to evaluate consistency
 ```
-select
-  count(*) as row_count,
-  count(case when StartDate > EndDate then 1 end) as invalid_count
-from `civic-genius-328315.remote_assignment.DimProduct`
-where EndDate <> "NULL" and EndDate is not null
+SELECT
+  COUNT(*) AS row_count,
+  COUNT(CASE WHEN StartDate > EndDate THEN 1 END) AS invalid_count
+FROM `civic-genius-328315.remote_assignment.DimProduct`
+WHERE EndDate <> "NULL" AND EndDate IS NOT NULL
 ```
 
 
@@ -151,11 +151,11 @@ This table contains information about the invoices.
 
 Query to find outliers
 ```
-select
-  count(*) as row_count,
-  count(case when startdate IN ('00:00.0', 'NULL') or startdate is null then 1 end) / count(*) as startdate_missing_score,
-  count(case when enddate IN ('00:00.0', 'NULL') or enddate is null then 1 end) / count(*) as enddate_missing_score
-from `civic-genius-328315.remote_assignment.DimProduct`
+SELECT
+  COUNT(*) AS row_count,
+  COUNT(CASE WHEN startdate IN ('00:00.0', 'NULL') OR startdate IS NULL THEN 1 END) / COUNT(*) AS startdate_missing_score,
+  COUNT(CASE WHEN enddate IN ('00:00.0', 'NULL') OR enddate IS NULL THEN 1 END) / COUNT(*) AS enddate_missing_score
+FROM `civic-genius-328315.remote_assignment.DimProduct`
 ```
 
 #### Uniqueness
@@ -167,12 +167,12 @@ from `civic-genius-328315.remote_assignment.DimProduct`
 
 Query to evaluate completeness
 ```
-select
-  count(*) as row_count,
-  count(distinct invoice_id) as invoice_count,
-  count(case when product_type is not null then 1 end) as product_type_compl_score,
-  count(case when discount is null then 1 end) / count(*) as discount_missing_score
-from `civic-genius-328315.remote_assignment.DimInvoices`
+SELECT
+  COUNT(*) AS row_count,
+  COUNT(DISTINCT invoice_id) AS invoice_count,
+  COUNT(CASE WHEN product_type IS NOT NULL THEN 1 END) AS product_type_compl_score,
+  COUNT(CASE WHEN discount IS NULL THEN 1 END) / COUNT(*) AS discount_missing_score
+FROM `civic-genius-328315.remote_assignment.DimInvoices`
 ```
 
 ### FactResellerSales
@@ -188,25 +188,25 @@ This fact table stores detailed information about sales transactions.
 
 Query to validate the unique identifier
 ```
-select
-  count(*) as row_count,
-  count(distinct concat(salesordernumber, '-', salesorderlinenumber))  as unique_id_count
-from `civic-genius-328315.remote_assignment.FactResellerSales`
+SELECT
+  COUNT(*) as row_count,
+  COUNT(DISTINCT CONCAT(salesordernumber, '-', salesorderlinenumber)) AS unique_id_count
+FROM `civic-genius-328315.remote_assignment.FactResellerSales`
 ```
 
 Query to find outliers
 ```
-with iqr as (
-  select
-    avg(ProductStandardCost) - 1.5 * stddev(ProductStandardCost) as lower_bound,
-    avg(ProductStandardCost) + 1.5 * stddev(ProductStandardCost) as upper_bound
-  from `civic-genius-328315.remote_assignment.FactResellerSales`
+WITH iqr AS (
+  SELECT
+    AVG(ProductStandardCost) - 1.5 * STDDEV(ProductStandardCost) AS lower_bound,
+    AVG(ProductStandardCost) + 1.5 * STDDEV(ProductStandardCost) AS upper_bound
+  FROM `civic-genius-328315.remote_assignment.FactResellerSales`
 )
 
-select
-  count(*),
-  count(case when ProductStandardCost not between lower_bound and upper_bound then 1 end) as outlier_count
-from `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
+SELECT
+  COUNT(*),
+  COUNT(CASE WHEN ProductStandardCost NOT BETWEEN lower_bound AND upper_bound THEN 1 END) AS outlier_count
+FROM `civic-genius-328315.remote_assignment.FactResellerSales`, iqr
 ```
 
 ## SQL Questions
