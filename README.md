@@ -6,7 +6,7 @@ This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data 
 ## Dataset
 
 The datasets are from this [spreadsheet](https://docs.google.com/spreadsheets/d/1aTaIHrw3rlyug-fJFYJjgWRYuaIJqDN6K_KNf0iHg1Q).  
-You may refer to it when the tables have expired.
+You may refer to it when the BigQuery tables have expired.
 
 ## Database Connection
 
@@ -27,7 +27,7 @@ You can query the tables from the [BigQuery console](https://console.cloud.googl
 
 Sample query:  
 ```
-SELECT * FROM `civic-genius-328315.remote_assignment.DimSalesTerritory` LIMIT 10
+SELECT * FROM `civic-genius-328315.remote_assignment.DimSalesTerritory`
 ```
 
 ## Exploratory Analysis with SQL
