@@ -290,7 +290,7 @@ SELECT
   Gender,
   COUNT(CASE WHEN AgeInYear < 35 THEN CustomerKey END) AS AgeBelow35,
   COUNT(CASE WHEN AgeInYear BETWEEN 35 AND 50 THEN CustomerKey END) AS AgeBetween35and50,
-  COUNT(CASE WHEN AgeInYear > 35 THEN CustomerKey END) AS AgeAbove50
+  COUNT(CASE WHEN AgeInYear > 50 THEN CustomerKey END) AS AgeAbove50
 FROM `civic-genius-328315.remote_assignment.DimCustomer` c
 JOIN age_ref a
   USING (CustomerKey)
