@@ -6,7 +6,7 @@ This demonstrates the use of **SQL** in **Google BigQuery** for **ETL**, **data 
 ## Dataset
 
 The datasets are from this [spreadsheet](https://docs.google.com/spreadsheets/d/1aTaIHrw3rlyug-fJFYJjgWRYuaIJqDN6K_KNf0iHg1Q).  
-You may refer to it when the BigQuery tables have expired.
+This datasets were uploaded to BigQuery, but it has 90 days of expiration. Please use the spreadsheet when the BigQuery tables have expired.
 
 ## Database Connection
 
